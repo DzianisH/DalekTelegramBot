@@ -17,12 +17,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import telegram
 import logging
 
-kb = [[telegram.KeyboardButton('/вперёд'), telegram.KeyboardButton('/назад')],
-          [telegram.KeyboardButton('/стоп'), telegram.KeyboardButton('/уничтожить!')],
-          [telegram.KeyboardButton('/левее'), telegram.KeyboardButton('/правее')],
-		  ]
+kb = [
+          [telegram.KeyboardButton('/вперёд')],
+          [telegram.KeyboardButton('/левее'), telegram.KeyboardButton('/стоп'), telegram.KeyboardButton('/правее')],
+          [telegram.KeyboardButton('/назад')],
+          [telegram.KeyboardButton('/уничтожить!')],
+    ]
 kb_markup = telegram.ReplyKeyboardMarkup(kb, resize_keyboard=True)
-	
+    
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -34,34 +36,35 @@ logger = logging.getLogger(__name__)
 # update. Error handlers also receive the raised TelegramError object in error.
 def hold_forward(bot, update):
     reply(bot, update, 'Далек начал движение вперёд')
-	
+    
 def hold_backward(bot, update):
     reply(bot, update, 'Далек начал движение назад')
-	
+    
 def stop(bot, update):
     reply(bot, update, 'Далек остановился')
-	
+    
 def turn_left(bot, update):
     reply(bot, update, 'Далек повернул левее')
-	
+    
 def turn_right(bot, update):
     reply(bot, update, 'Далек повернул правее')
-	
+    
 def exterminate(bot, update):
     reply(bot, update, 'Далек уничтожает цель')
 
 def help(bot, update):
     reply(bot, update, 'Приказывайте Далеку, повелитель')
-	
+    
 def reply(bot, update, text):
     """Reply to user."""
     bot.send_message(chat_id=update.message.chat_id, text=text, reply_markup=kb_markup)
+    print('Sent message  "{}" to chat with @{}'.format(text, update.message.chat.username))
 
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, error)
-	
+    
 
 def main():
     """Start the bot."""
@@ -78,6 +81,8 @@ def main():
     dp.add_handler(CommandHandler("левее", turn_left))
     dp.add_handler(CommandHandler("правее", turn_right))
     dp.add_handler(CommandHandler("уничтожить!", exterminate))
+    dp.add_handler(CommandHandler("start", help))
+    dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, help))
